@@ -1,14 +1,19 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React from "react";
+import ReactDOM from "react-dom";
+import "./index.css";
+import Slider from "./Slider";
+import reportWebVitals from "./reportWebVitals";
+
+import imgA from "./images/A.jpeg";
+import imgB from "./images/B.jpeg";
+import imgC from "./images/C.jpeg";
+const images = [imgA, imgB, imgC];
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <Slider images={images} />
   </React.StrictMode>,
-  document.getElementById('root')
+  document.getElementById("root")
 );
 
 // If you want to start measuring performance in your app, pass a function
