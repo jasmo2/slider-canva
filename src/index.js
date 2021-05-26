@@ -11,7 +11,7 @@ const images = [imgA, imgB, imgC];
 
 ReactDOM.render(
   <React.StrictMode>
-    <Slider images={images} />
+    <Slider images={images} width={640} height={400} />
   </React.StrictMode>,
   document.getElementById("root")
 );
