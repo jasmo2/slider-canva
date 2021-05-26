@@ -1,24 +1,31 @@
+import React, { useRef, useEffect } from "react";
 import "./style.css";
 
+// single image
+// const img = new Image();
+//     img.onload = start;
+//     img.src = images[0];
+//     function start() {
+//       context.drawImage(img, 0, 0);
+//     }
 function Slider(props) {
-  const { images } = props;
+  const { images = [] } = props;
+  const canvasRef = useRef(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const context = canvas.getContext("2d");
+
+    loadImages(images, (imgsObjects) => {
+      refresh(context, imgsObjects);
+    });
+  }, [images]);
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={images[0]} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <canvas
+      ref={canvasRef}
+      width={300}
+      height={300}
+      style={{ width: "100%" }}
+    />
   );
 }
 
