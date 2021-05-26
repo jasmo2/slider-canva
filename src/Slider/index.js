@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import "./style.css";
 
 // single image
@@ -39,14 +39,23 @@ function Slider(props) {
   const canvasVars = useRef({
     lastWidth: 0,
     limitX: 0,
+    moveXAmount: 0,
+    oldX: 0,
+    startX: 0,
+    imgsObjects: [],
+    isDragging: false,
   });
+  const [isDragging, setIsDragging] = useState(false);
 
-  function refresh(context, images) {
+  function draw(context, images = []) {
     const canvas = canvasRef.current;
-    context.clearRect(0, 0, canvas.width, canvas.height);
+    // context.clearRect(0, 0, canvas.width, canvas.height);
     const l = images.length;
 
     for (let index = 0; index < l; index++) {
+      console.log(
+        "TCL ~ file: index.js ~ line 56 ~ draw ~  for (let index = 0; index < l; index++) {"
+      );
       const img = images[index];
 
       const imgSize = getAspectRatio(
@@ -66,14 +75,14 @@ function Slider(props) {
       context.drawImage(
         img,
 
-        centerWidth + canvasVars.current.limitX + centerHeight,
+        canvasVars.current.limitX + canvasVars.current.moveXAmount,
+        centerHeight,
         imgSize.width,
         imgSize.height
       );
 
       canvasVars.current.lastWidth = imgSize.width;
-      canvasVars.current.limitX += canvas.width;
-      console.log("-----");
+      canvasVars.current.limitX += imgSize.width;
     }
   }
 
@@ -82,11 +91,58 @@ function Slider(props) {
     const context = canvas.getContext("2d");
 
     loadImages(images, (imgsObjects) => {
-      refresh(context, imgsObjects);
+      canvasVars.current.imgsObjects = imgsObjects;
+      draw(context, imgsObjects);
     });
+
+    canvas.onmousedown = (event) => {
+      setIsDragging(true);
+      canvasVars.current.isDragging = true;
+      canvasVars.current.startX = parseInt(event.clientX);
+      console.log(
+        "TCL ~ file: index.js ~ line 97 ~ useEffect ~ canvasVars.current.startX ",
+        canvasVars.current.startX
+      );
+    };
+
+    // Windows is use because in the exmaple it can be drag even outside canva box
+    window.onmouseup = () => {
+      canvasVars.current.oldX = canvasVars.current.moveXAmount;
+      console.log(
+        "TCL ~ file: index.js ~ line 102 ~ useEffect ~ canvasVars.current.oldX",
+        canvasVars.current.oldX
+      );
+      setIsDragging(false);
+      canvasVars.current.isDragging = false;
+    };
+
+    // Mousemove -> slide pictures
+    window.onmousemove = (event) => {
+      const { isDragging, startX, oldX, limitX, lastWidth, imgsObjects } =
+        canvasVars.current;
+      if (isDragging) {
+        console.log(
+          "TCL ~ file: index.js ~ line 122 ~ useEffect ~ event.clientX",
+          event.clientX
+        );
+        const x = parseInt(event.clientX) - startX + oldX;
+        console.log("TCL ~ file: index.js ~ line 119 ~ useEffect ~ x", x);
+
+        if (x > -(limitX - lastWidth) && x <= 0) {
+          canvasVars.current.moveXAmount = x;
+          console.log(
+            "TCL ~ file: index.js ~ line 118 ~ useEffect ~ imgsObjects",
+            imgsObjects
+          );
+          draw(context, imgsObjects);
+        }
+      }
+    };
   }, [images]);
+
   return (
     <canvas
+      className={`canvas ${isDragging ? "dragging" : ""}`}
       ref={canvasRef}
       width={width}
       height={height}
