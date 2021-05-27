@@ -10,13 +10,25 @@ import "./style.css";
  *     }
  */
 
-const getAspectRatio = (inputWidth, inputHeight, maxWidth, maxHeight) => {
-  const ratio = Math.min(maxWidth / inputWidth, maxHeight / inputHeight);
-  const width = inputWidth * ratio;
-  const height = inputHeight * ratio;
+const getAspectRatio = (image, canvas) => {
+  let imageAspect = image.width / image.height;
+  let aspect = canvas.width / canvas.height;
 
+  /**
+   * Here we have to compare which of the aspects Ratio
+   * is bigger so we adjust the image as best as possible
+   */
+  if (imageAspect >= aspect) {
+    aspect = canvas.width / image.width;
+  } else if (aspect > imageAspect) {
+    aspect = canvas.height / image.height;
+  }
+
+  const width = image.width * aspect;
+  const height = image.height * aspect;
   return { width, height };
 };
+
 const loadImages = (images, cb) => {
   const canvaImgs = [];
   let loaderCounter = 0;
@@ -54,20 +66,16 @@ function Slider(props) {
     canvasVars.current.limitX = 0;
 
     context.clearRect(0, 0, canvas.width, canvas.height);
-    const l = images.length;
 
+    const l = images.length;
     for (let index = 0; index < l; index++) {
+      const { limitX, moveXAmount } = canvasVars.current;
       const img = images[index];
 
-      const imgSize = getAspectRatio(
-        img.width,
-        img.height,
-        canvas.width,
-        canvas.height
-      );
+      const { width: aWidth, height: aHeight } = getAspectRatio(img, canvas);
 
-      const centerHeight = (canvas.height - imgSize.height) / 2;
-      const centerWidth = (canvas.width - imgSize.width) / 2;
+      const y = (canvas.height - aHeight) * 0.5;
+      const x = moveXAmount + limitX + (canvas.width - aWidth) * 0.5;
 
       /* Image draw interphase
        * void ctx.drawImage(image, dx, dy, dWidth, dHeight);
@@ -75,20 +83,19 @@ function Slider(props) {
        * https://stackoverflow.com/questions/15036386/make-image-drawn-on-canvas-draggable-with-javascript
        */
 
-      const { limitX, moveXAmount } = canvasVars.current;
       context.drawImage(
         img,
 
-        limitX + moveXAmount,
-        centerHeight,
-        imgSize.width,
-        imgSize.height
+        x,
+        y,
+        aWidth,
+        aHeight
       );
 
       canvasVars.current = {
         ...canvasVars.current,
-        lastWidth: imgSize.width,
-        limitX: limitX + imgSize.width,
+        lastWidth: aWidth,
+        limitX: index >= l ? limitX : limitX + canvas.width,
       };
     }
   }
