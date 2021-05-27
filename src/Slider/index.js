@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import "./style.css";
 
-/* single image
+/** single image
  * const img = new Image();
  *     img.onload = start;
  *     img.src = images[0];
@@ -77,7 +77,7 @@ function Slider(props) {
       const y = (canvas.height - aHeight) * 0.5;
       const x = moveXAmount + limitX + (canvas.width - aWidth) * 0.5;
 
-      /* Image draw interphase
+      /** Image draw interphase
        * void ctx.drawImage(image, dx, dy, dWidth, dHeight);
        *
        * https://stackoverflow.com/questions/15036386/make-image-drawn-on-canvas-draggable-with-javascript
