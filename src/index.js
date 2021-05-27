@@ -3,11 +3,11 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import Slider from "./Slider";
 import reportWebVitals from "./reportWebVitals";
+import { importAll } from "./utils";
 
-import imgA from "./images/A.jpeg";
-import imgB from "./images/B.jpeg";
-import imgC from "./images/C.jpeg";
-const images = [imgA, imgB, imgC];
+const images = importAll(
+  require.context("./images", false, /\.(png|jpe?g|svg)$/)
+).map((m) => m.default);
 
 const width = "800px";
 const styles = { width };
