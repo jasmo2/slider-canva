@@ -1,13 +1,14 @@
 import React, { useRef, useEffect, useState } from "react";
 import "./style.css";
 
-// single image
-// const img = new Image();
-//     img.onload = start;
-//     img.src = images[0];
-//     function start() {
-//       context.drawImage(img, 0, 0);
-//     }
+/* single image
+ * const img = new Image();
+ *     img.onload = start;
+ *     img.src = images[0];
+ *     function start() {
+ *       context.drawImage(img, 0, 0);
+ *     }
+ */
 
 const getAspectRatio = (inputWidth, inputHeight, maxWidth, maxHeight) => {
   const ratio = Math.min(maxWidth / inputWidth, maxHeight / inputHeight);
@@ -44,18 +45,18 @@ function Slider(props) {
     startX: 0,
     imgsObjects: [],
     isDragging: false,
+    offsetX: 0,
   });
   const [isDragging, setIsDragging] = useState(false);
 
   function draw(context, images = []) {
     const canvas = canvasRef.current;
-    // context.clearRect(0, 0, canvas.width, canvas.height);
+    canvasVars.current.limitX = 0;
+
+    context.clearRect(0, 0, canvas.width, canvas.height);
     const l = images.length;
 
     for (let index = 0; index < l; index++) {
-      console.log(
-        "TCL ~ file: index.js ~ line 56 ~ draw ~  for (let index = 0; index < l; index++) {"
-      );
       const img = images[index];
 
       const imgSize = getAspectRatio(
@@ -68,27 +69,34 @@ function Slider(props) {
       const centerHeight = (canvas.height - imgSize.height) / 2;
       const centerWidth = (canvas.width - imgSize.width) / 2;
 
-      // Single image
-      // void ctx.drawImage(image, dx, dy, dWidth, dHeight);
-      // context.drawImage(img, 0, 0);
+      /* Image draw interphase
+       * void ctx.drawImage(image, dx, dy, dWidth, dHeight);
+       *
+       * https://stackoverflow.com/questions/15036386/make-image-drawn-on-canvas-draggable-with-javascript
+       */
 
+      const { limitX, moveXAmount } = canvasVars.current;
       context.drawImage(
         img,
 
-        canvasVars.current.limitX + canvasVars.current.moveXAmount,
+        limitX + moveXAmount,
         centerHeight,
         imgSize.width,
         imgSize.height
       );
 
-      canvasVars.current.lastWidth = imgSize.width;
-      canvasVars.current.limitX += imgSize.width;
+      canvasVars.current = {
+        ...canvasVars.current,
+        lastWidth: imgSize.width,
+        limitX: limitX + imgSize.width,
+      };
     }
   }
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
+    canvasVars.current.offsetX = canvas.offsetLeft;
 
     loadImages(images, (imgsObjects) => {
       canvasVars.current.imgsObjects = imgsObjects;
@@ -97,43 +105,39 @@ function Slider(props) {
 
     canvas.onmousedown = (event) => {
       setIsDragging(true);
-      canvasVars.current.isDragging = true;
-      canvasVars.current.startX = parseInt(event.clientX);
-      console.log(
-        "TCL ~ file: index.js ~ line 97 ~ useEffect ~ canvasVars.current.startX ",
-        canvasVars.current.startX
-      );
+
+      canvasVars.current = {
+        ...canvasVars.current,
+        isDragging: true,
+        startX: parseInt(event.clientX - canvasVars.current.offsetX),
+      };
     };
 
     // Windows is use because in the exmaple it can be drag even outside canva box
     window.onmouseup = () => {
-      canvasVars.current.oldX = canvasVars.current.moveXAmount;
-      console.log(
-        "TCL ~ file: index.js ~ line 102 ~ useEffect ~ canvasVars.current.oldX",
-        canvasVars.current.oldX
-      );
       setIsDragging(false);
-      canvasVars.current.isDragging = false;
+      canvasVars.current = {
+        ...canvasVars.current,
+        oldX: canvasVars.current.moveXAmount,
+        isDragging: false,
+      };
     };
 
-    // Mousemove -> slide pictures
     window.onmousemove = (event) => {
-      const { isDragging, startX, oldX, limitX, lastWidth, imgsObjects } =
-        canvasVars.current;
+      const {
+        imgsObjects,
+        isDragging,
+        lastWidth,
+        limitX,
+        offsetX,
+        oldX,
+        startX,
+      } = canvasVars.current;
       if (isDragging) {
-        console.log(
-          "TCL ~ file: index.js ~ line 122 ~ useEffect ~ event.clientX",
-          event.clientX
-        );
-        const x = parseInt(event.clientX) - startX + oldX;
-        console.log("TCL ~ file: index.js ~ line 119 ~ useEffect ~ x", x);
+        const x = parseInt(event.clientX - offsetX) - startX + oldX;
 
         if (x > -(limitX - lastWidth) && x <= 0) {
           canvasVars.current.moveXAmount = x;
-          console.log(
-            "TCL ~ file: index.js ~ line 118 ~ useEffect ~ imgsObjects",
-            imgsObjects
-          );
           draw(context, imgsObjects);
         }
       }
