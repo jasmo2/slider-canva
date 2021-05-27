@@ -94,8 +94,8 @@ function Slider(props) {
 
       canvasVars.current = {
         ...canvasVars.current,
-        lastWidth: aWidth,
-        limitX: index >= l ? limitX : limitX + canvas.width,
+        lastWidth: limitX,
+        limitX: limitX + canvas.width,
       };
     }
   }
@@ -143,7 +143,12 @@ function Slider(props) {
       if (isDragging) {
         const x = parseInt(event.clientX - offsetX) - startX + oldX;
 
-        if (x > -(limitX - lastWidth) && x <= 0) {
+        /**
+         * Debug to make it stop in the last image with the right offset
+         * console.table(`TCL ~ lastWidth ${lastWidth}\tx: ${x}`);
+         */
+
+        if (x > -lastWidth && x <= 0) {
           canvasVars.current.moveXAmount = x;
           draw(context, imgsObjects);
         }
