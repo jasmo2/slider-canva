@@ -9,9 +9,13 @@ import imgB from "./images/B.jpeg";
 import imgC from "./images/C.jpeg";
 const images = [imgA, imgB, imgC];
 
+const width = "800px";
+const styles = { width };
 ReactDOM.render(
   <React.StrictMode>
-    <Slider images={images} width={640} height={400} />
+    <section className="wrapper" style={styles}>
+      <Slider images={images} />
+    </section>
   </React.StrictMode>,
   document.getElementById("root")
 );

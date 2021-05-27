@@ -1,5 +1,6 @@
 .canvas {
   cursor: grab;
+  background-color: lightgray;
 }
 
 .canvas.dragging {
