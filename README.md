@@ -1,5 +1,10 @@
 # Canva Slider
 
+### Deployed
+The following URL has the deploy application on heroku.
+> https://canvas-slider-eu.herokuapp.com/
+
+### Locally
 To start the project 1º install YARN, then use.
 
 `yarn install` this will install the dependencies.
@@ -14,3 +19,5 @@ To start the project use `yarn start`
 - 5º) Refactor Shared values using JS destructuring 
 - 6º) Refactor Images base on Aspect - Ratio
 - 7º) Fix Last image offset issue.
+- 8º) Deploy the application.
+
